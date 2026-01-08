@@ -73,6 +73,12 @@ Não se esqueça de executar também o backend:
 
 Abra o navegador em: http://localhost:8080
 
+#### Variáveis ambiente
+
+- **Backend**: Crie um `.env` na pasta `backend` e copie o conteúdo de `backend/.env.example`
+- **Frontend**: Crie um `.env.local` na pasta raiz e copie o conteúdo de `.env.example`
+  > Para executar o frontend apontando para o backend em nuvem, utilize o comando: `npm run dev:prod` (esse comando usa o `.env.production`)
+
 ---
 
 ## 🌐 Integração com a API da Scryfall
@@ -100,13 +106,16 @@ Esse serviço utiliza `fetch` para buscar informações de cartas, edições e s
 
 ## 📦 Deploy
 
+### Frontend
+
+- **Plataforma:** Vercel
+- **URL:** https://manavaultbuilder.vercel.app
+
 ### Backend
 
 - **Plataforma:** Render (Web Service)
 - **Persistência:** JSONBins.io (armazenamento simples para demo)
 - **URL:** https://manavaultbuilder.onrender.com
-
-> Configure as variáveis de ambiente conforme em `backend/.env.example`
 
 > Obs: no plano free do Render o serviço pode "dormir", então a primeira requisição pode demorar alguns segundos.
 
