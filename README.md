@@ -100,6 +100,11 @@ Esse serviço utiliza `fetch` para buscar informações de cartas, edições e s
 
 ## 📦 Deploy
 
+### Frontend
+
+- **Plataforma:** Vercel
+- **URL:** https://manavaultbuilder.vercel.app
+
 ### Backend
 
 - **Plataforma:** Render (Web Service)
