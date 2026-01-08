@@ -1,22 +1,22 @@
-import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import fs from "fs";
-import path from "path";
-import { z } from "zod";
+import bcrypt from 'bcrypt';
+import {
+  Request,
+  Response,
+} from 'express';
+import { z } from 'zod';
 
-import { User } from "../types";
-import { withRequired } from "../utils/validations";
-import { signToken } from "../services/authService";
+import { signToken } from '../services/authService';
+import { database } from '../services/database';
+import { User } from '../types';
+import { withRequired } from '../utils/validations';
 
-const dbPath = path.join(__dirname, "..", "db", "usuarios.json");
-
-export const listarUsuarios = (_req: Request, res: Response) => {
+export const listarUsuarios = async (_req: Request, res: Response) => {
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const usuarios = JSON.parse(data).map((usuario: User) => ({ ...usuario, password: undefined }));
+    const usuarios = (await database.getUsers()).map((usuario: User) => ({ ...usuario, password: undefined }));
+
     res.json(usuarios);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao ler os usuários." });
+    res.status(500).json({ erro: `Erro ao ler os usuários: ${error}` });
   }
 };
 
@@ -43,8 +43,7 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const usuarios: User[] = JSON.parse(data);
+    const usuarios = await database.getUsers();
 
     const emailJaExiste = usuarios.find((u) => u.email === email);
     if (emailJaExiste) {
@@ -63,12 +62,12 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
     };
 
     usuarios.push(novoUsuario);
-    fs.writeFileSync(dbPath, JSON.stringify(usuarios, null, 2), "utf-8");
+    await database.setUsers(usuarios);
 
     const token = signToken(novoUsuario.id);
 
     res.status(201).json({ usuario: { ...novoUsuario, password: undefined }, token });
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao cadastrar o usuário." });
+    res.status(500).json({ erro: `Erro ao cadastrar o usuário: ${error}` });
   }
 };
