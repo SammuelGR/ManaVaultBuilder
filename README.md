@@ -2,6 +2,17 @@
 
 Um aplicativo web para colecionadores e jogadores de **Magic: The Gathering**. Com integração à [API da Scryfall](https://scryfall.com/docs/api), permite realizar buscas avançadas de cartas com visualização em grid e estrutura modular pronta para expansão (como decks, autenticação e exportação).
 
+## Demo
+
+<p align="center">
+  <img src="./docs/demo-home.png" width="480" alt="Home" />
+  <img src="./docs/demo-deck.png" width="480" alt="Deck" />
+</p>
+
+<p align="center">
+  Vídeo completo da demo: <a href="https://github.com/SammuelGR/ManaVaultBuilder/issues/4" target="_blank">issue #4</a>
+</p>
+
 ---
 
 ## 🚀 Tecnologias Utilizadas
