@@ -1,24 +1,22 @@
-import { Request, Response } from "express";
-import fs from "fs";
-import path from "path";
-import { z } from "zod";
+import {
+  Request,
+  Response,
+} from 'express';
+import { z } from 'zod';
 
-import { Deck } from "../types";
-import { withRequired } from "../utils/validations";
+import { database } from '../services/database';
+import { Deck } from '../types';
+import { withRequired } from '../utils/validations';
 
-const dbPath = path.join(__dirname, "..", "db", "decks.json");
-
-export const listUserDecks = (req: Request, res: Response) => {
+export const listUserDecks = async (req: Request, res: Response) => {
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-
-    const allDecks: Deck[] = JSON.parse(data);
+    const allDecks = await database.getDecks();
 
     const userDecks = allDecks.filter((deck) => deck.userId === req.userId);
 
     res.json(userDecks);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao ler os decks." });
+    res.status(500).json({ erro: `Erro ao ler os decks: ${error}` });
   }
 };
 
@@ -27,7 +25,7 @@ const registerSchema = z.object({
   description: z.string().optional(),
 });
 
-export const createDeck = (req: Request, res: Response) => {
+export const createDeck = async (req: Request, res: Response) => {
   const { name, description } = req.body;
 
   const result = registerSchema.safeParse({ name, description });
@@ -44,8 +42,7 @@ export const createDeck = (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const decks: Deck[] = JSON.parse(data);
+    const decks = await database.getDecks();
 
     const newDeck: Deck = {
       id: `deck_${Date.now()}`,
@@ -58,11 +55,11 @@ export const createDeck = (req: Request, res: Response) => {
     };
 
     decks.push(newDeck);
-    fs.writeFileSync(dbPath, JSON.stringify(decks, null, 2), "utf-8");
+    await database.setDecks(decks);
 
     res.status(201).json(newDeck);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao criar novo deck." });
+    res.status(500).json({ erro: `Erro ao criar novo deck: ${error}` });
   }
 };
 
@@ -70,7 +67,7 @@ const deleteSchema = z.object({
   deckId: z.string(withRequired("ID")),
 });
 
-export const deleteDeck = (req: Request, res: Response) => {
+export const deleteDeck = async (req: Request, res: Response) => {
   const { deckId } = req.params;
 
   const result = deleteSchema.safeParse({ deckId });
@@ -87,8 +84,7 @@ export const deleteDeck = (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const decks: Deck[] = JSON.parse(data);
+    const decks = await database.getDecks();
 
     const deckExists = decks.find((deck) => deck.id === deckId);
 
@@ -98,12 +94,11 @@ export const deleteDeck = (req: Request, res: Response) => {
     }
 
     const filteredDecks = decks.filter((deck) => deck.id !== deckId);
-
-    fs.writeFileSync(dbPath, JSON.stringify(filteredDecks, null, 2), "utf-8");
+    await database.setDecks(filteredDecks);
 
     res.status(204).end();
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao excluir deck." });
+    res.status(500).json({ erro: `Erro ao excluir deck: ${error}` });
   }
 };
 
@@ -160,7 +155,7 @@ const addCardBodySchema = z.object({
     .nullish(),
 });
 
-export const addCardToDeck = (req: Request, res: Response) => {
+export const addCardToDeck = async (req: Request, res: Response) => {
   const { deckId } = req.params;
 
   const card = req.body;
@@ -192,8 +187,7 @@ export const addCardToDeck = (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const decks: Deck[] = JSON.parse(data);
+    const decks = await database.getDecks();
 
     const deckIdx = decks.findIndex((deck) => deck.id === deckId);
 
@@ -212,11 +206,11 @@ export const addCardToDeck = (req: Request, res: Response) => {
 
     decks[deckIdx].updatedAt = new Date().toISOString();
 
-    fs.writeFileSync(dbPath, JSON.stringify(decks, null, 2), "utf-8");
+    await database.setDecks(decks);
 
     res.status(201).json(decks[deckIdx]);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao adicionar carta ao deck." });
+    res.status(500).json({ erro: `Erro ao adicionar carta ao deck: ${error}` });
   }
 };
 
@@ -225,7 +219,7 @@ const removeCardParamsSchema = z.object({
   cardId: z.string(withRequired("Card ID")),
 });
 
-export const removeCardFromDeck = (req: Request, res: Response) => {
+export const removeCardFromDeck = async (req: Request, res: Response) => {
   const { deckId, cardId } = req.params;
 
   const paramsValidation = removeCardParamsSchema.safeParse({ deckId, cardId });
@@ -242,8 +236,7 @@ export const removeCardFromDeck = (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const decks: Deck[] = JSON.parse(data);
+    const decks = await database.getDecks();
 
     const deck = decks.find((d) => d.id === deckId);
     if (!deck) {
@@ -261,9 +254,9 @@ export const removeCardFromDeck = (req: Request, res: Response) => {
 
     deck.updatedAt = new Date().toISOString();
 
-    fs.writeFileSync(dbPath, JSON.stringify(decks, null, 2), "utf-8");
+    await database.setDecks(decks);
     res.status(200).json(deck);
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao remover carta do deck." });
+    res.status(500).json({ erro: `Erro ao remover carta do deck: ${error}` });
   }
 };

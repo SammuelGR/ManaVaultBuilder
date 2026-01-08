@@ -1,13 +1,15 @@
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import userRoutes from "./routes/userRoutes";
-import sessionRoutes from "./routes/sessionRoutes";
-import deckRoutes from "./routes/deckRoutes";
-import authMiddleware from "./middlewares/auth";
+import 'dotenv/config';
+
+import cors from 'cors';
+import express from 'express';
+
+import authMiddleware from './middlewares/auth';
+import deckRoutes from './routes/deckRoutes';
+import sessionRoutes from './routes/sessionRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -18,5 +20,5 @@ app.use("/session", sessionRoutes);
 app.use("/decks", authMiddleware, deckRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta: ${PORT}`);
 });

@@ -1,14 +1,13 @@
-import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import fs from "fs";
-import path from "path";
-import { z } from "zod";
+import bcrypt from 'bcrypt';
+import {
+  Request,
+  Response,
+} from 'express';
+import { z } from 'zod';
 
-import { User } from "../types";
-import { withRequired } from "../utils/validations";
-import { signToken } from "../services/authService";
-
-const dbPath = path.join(__dirname, "..", "db", "usuarios.json");
+import { signToken } from '../services/authService';
+import { database } from '../services/database';
+import { withRequired } from '../utils/validations';
 
 const loginSchema = z.object({
   email: z.string(withRequired("Email")).email("Email inválido"),
@@ -32,8 +31,7 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = fs.readFileSync(dbPath, "utf-8");
-    const usuarios: User[] = JSON.parse(data);
+    const usuarios = await database.getUsers();
 
     const usuario = usuarios.find((u) => u.email === email);
 
@@ -48,6 +46,6 @@ export const login = async (req: Request, res: Response) => {
 
     res.json({ mensagem: "Login bem-sucedido", usuario: { ...usuario, password: undefined }, token });
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao processar o login." });
+    res.status(500).json({ erro: `Erro ao processar o login: ${error}` });
   }
 };
