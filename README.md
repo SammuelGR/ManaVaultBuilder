@@ -24,10 +24,10 @@ src/
 ├── hooks/ → Custom hooks (ex: uso de mobile e toast)
 ├── lib/ → Funções auxiliares
 ├── pages/ → Páginas principais (Login, Deck, NotFound, etc)
-├── pages/ → Configuração das rotas das páginas privadas, públicas e compartilhadas
+├── routes/ → Configuração das rotas das páginas privadas, públicas e compartilhadas
 ├── services/ → Serviços externos (integração com Scryfall) e backend interno
 ├── types/ → Tipagens globais
-├── types/ → Funções utilitárias (fetch autenticado, imprimir pdf)
+├── utils/ → Funções utilitárias (fetch autenticado, imprimir pdf)
 ├── App.tsx → Componente raiz
 ├── main.tsx → Ponto de entrada
 ```
@@ -100,7 +100,15 @@ Esse serviço utiliza `fetch` para buscar informações de cartas, edições e s
 
 ## 📦 Deploy
 
-> Deploy ainda não implementado.
+### Backend
+
+- **Plataforma:** Render (Web Service)
+- **Persistência:** JSONBins.io (armazenamento simples para demo)
+- **URL:** https://manavaultbuilder.onrender.com
+
+> Configure as variáveis de ambiente conforme em `backend/.env.example`
+
+> Obs: no plano free do Render o serviço pode "dormir", então a primeira requisição pode demorar alguns segundos.
 
 ---
 
